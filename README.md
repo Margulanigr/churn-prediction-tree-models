@@ -21,11 +21,17 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 - For number of products, the churn rate is 7.6% for 2 products, 27.7% for 1 product. For 3 it's reaches 82.7% and for 4 it is 100%, but there are only 326 clients with 3 or 4 number of products, therefore, the conclusion is a cautious one
 
 ## Models and results
+
 | Model| Precision | Recall | F1 | ROC-AUC |
 |---|---|---|---|---|
 | Dummy (most frequent)	| 0.00 | 0.00 | 0.00 | 0.50 |
 | Decision Tree, depth 3 | 0.87 | 0.24 | 0.37 | not calculated |
 | Decision Tree, depth 7 | 0.68 | 0.51 | 0.59 | 0.83 |
+| Random Forest (default parameters) | 0.78 | 0.46 | 0.58 | 0.85 |
+
+- Random Forest was trained with default parameters (no tuning).
+- It has a higher ROC-AUC (0.85 vs 0.83), so it ranks clients by churn risk better.
+- Its F1-score is virtually the same as the depth-7 decision tree (0.58 vs 0.59).
 
 ## How to run
 ```
