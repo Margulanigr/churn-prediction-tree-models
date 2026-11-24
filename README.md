@@ -15,10 +15,10 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 
 ## Key findings from EDA
 - 20.4% of clients left the bank
-- Clients from Germany: the churn rate is 32.4%, while France and Spain make up around 16,5%
+- Clients from Germany: the churn rate is 32.4%, while about 16% in France and Spain 
 - Churn rate among women is 25.1% vs 16.5% among men
 - Inactive clients have a churn rate of 26.9%, compared to a 14.3% for active clients
-- For number of products, the churn rate is 7.6% for 2 products, 27.7% for 1 product. For 3 it's reaches 82.7% and for 4 it is 100%, but there are only 326 clients with 3 or 4 number of products, therefore, the conclusion is a cautious one
+- For number of products, the churn rate is 7.6% for 2 products, 27.7% for 1 product. For 3 products it's reaches 82.7% and for 4 it is 100%, but there are only 326 clients with 3 or 4 number of products, therefore, the conclusion is a cautious one
 
 ## Models and results
 
@@ -29,9 +29,10 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 | Decision Tree, depth 7 | 0.68 | 0.51 | 0.59 | 0.83 |
 | Random Forest (default parameters) | 0.78 | 0.46 | 0.58 | 0.85 |
 
-- Random Forest was trained with default parameters (no tuning).
+- Random Forest hyperparameters were checked with 5-fold cross-validation on the training set (max_depth: 3-15 and None; min_samples_leaf: 1:20). No improvement beyond the cross_validation noise was found, so the default parameters were kept.
 - It has a higher ROC-AUC (0.85 vs 0.83), so it ranks clients by churn risk better.
 - Its F1-score is virtually the same as the depth-7 decision tree (0.58 vs 0.59).
+- The forest overfits the training data (accuracy and recall are 1.00 on train vs 0.86 and 0.46 on test), but its ROC_AUC on test is good (0.85), and limiting tree depth did not help.
 
 ## How to run
 ```
@@ -40,5 +41,4 @@ Run notebook/01_explore.py, then notebook/02_prepare.py
 ```
 
 ## Next steps
-Random Forest, Gradient Boosting, SQL analysis
-
+Gradient Boosting, SQL analysis
