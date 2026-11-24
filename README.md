@@ -22,17 +22,20 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 
 ## Models and results
 
-| Model| Precision | Recall | F1 | ROC-AUC |
-|---|---|---|---|---|
-| Dummy (most frequent)	| 0.00 | 0.00 | 0.00 | 0.50 |
-| Decision Tree, depth 3 | 0.87 | 0.24 | 0.37 | not calculated |
-| Decision Tree, depth 7 | 0.68 | 0.51 | 0.59 | 0.83 |
-| Random Forest (default parameters) | 0.78 | 0.46 | 0.58 | 0.85 |
+| Model                                  | Precision | Recall | F1   | ROC-AUC |
+|----------------------------------------|---|---|------|---|
+| Dummy (most frequent)	                 | 0.00 | 0.00 | 0.00 | 0.50 |
+| Decision Tree, depth 3                 | 0.87 | 0.24 | 0.37 | not calculated |
+| Decision Tree, depth 7                 | 0.68 | 0.51 | 0.59 | 0.83 |
+| Random Forest (default parameters)     | 0.78 | 0.46 | 0.58 | 0.85 |
+| Gradient Boosting (default parameters) | 0.79 | 0.49 | 0.60 | 0.87 |
 
 - Random Forest hyperparameters were checked with 5-fold cross-validation on the training set (max_depth: 3-15 and None; min_samples_leaf: 1:20). No improvement beyond the cross_validation noise was found, so the default parameters were kept.
 - It has a higher ROC-AUC (0.85 vs 0.83), so it ranks clients by churn risk better.
 - Its F1-score is virtually the same as the depth-7 decision tree (0.58 vs 0.59).
 - The forest overfits the training data (accuracy and recall are 1.00 on train vs 0.86 and 0.46 on test), but its ROC_AUC on test is good (0.85), and limiting tree depth did not help.
+- Gradient Boosting shows no sign of overfitting with default parameters: accuracy is 0.87 on both train and test, recall is 0.50 on train vs 0.49 on test. It builds small trees one by one, each correcting the errors of the previous one.
+- It has the highest ROC-AUC among the models (0.87)
 
 ## How to run
 ```
@@ -41,4 +44,4 @@ Run notebook/01_explore.py, then notebook/02_prepare.py
 ```
 
 ## Next steps
-Gradient Boosting, SQL analysis
+Tune Gradient Boosting, feature importance, error analysis, SQL analysis
