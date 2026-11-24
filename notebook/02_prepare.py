@@ -4,7 +4,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score, roc_auc_score
 from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 
 pd.set_option('display.max_columns', None)
@@ -149,12 +149,12 @@ print('='*20, '\nRandom Forest:')
 modelrf = RandomForestClassifier(random_state=42)
 modelrf.fit(X_train_final, y_train)
 pred_rf = modelrf.predict(X_test_final)
-rf_prob = modelrf.predict_proba(X_test_final)
 rf_report = classification_report(y_test, pred_rf)
 rf_conf = confusion_matrix(y_test, pred_rf)
 print(f'Classification report:\n{rf_report}')
 print(f'Confusion matrix: \n{rf_conf}')
 
+rf_prob = modelrf.predict_proba(X_test_final)
 rf_roc_auc = roc_auc_score(y_test, rf_prob[:,1])
 print(f'ROC AUC(random forest): {rf_roc_auc:.4f}')
 
@@ -168,44 +168,60 @@ recall_for_train = recall_score(y_train, pred_rf_train)
 print(f'Accuracy for train: {accuracy_for_train}')
 print(f'Recall for train: {recall_for_train}')
 
-print('='*20, '\ncheck depths with cross validation for random forest')
-depths_rf_depth = [3,5,7,10,15, None]
-for depth in depths_rf_depth:
-    model = RandomForestClassifier(max_depth=depth, random_state=42)
-    recall_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='recall')
-    f1_scores = cross_val_score(model, X_train_final, y_train, cv = 5, scoring='f1')
-
-    mean_recall = recall_scores.mean()
-    mean_f1 = f1_scores.mean()
-
-    std_recall = recall_scores.std()
-    std_f1 = f1_scores.std()
-
-    print(f'Глубина {depth} | Средний recall: {mean_recall:.4f} ± {std_recall:.4f} | Средний f1: {mean_f1:.4f} ± {std_f1:.4f}' )
-
-print('-'*10, '\nmin samples_leaf')
-
-rf_leaf = [1,3,5,10,20]
-for leaf in rf_leaf:
-    model = RandomForestClassifier(min_samples_leaf=leaf, max_depth=None, random_state=42)
-    recall_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='recall')
-    f1_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='f1')
-
-    mean_recall = recall_scores.mean()
-    mean_f1 = f1_scores.mean()
-
-    std_recall = recall_scores.std()
-    std_f1 = f1_scores.std()
-
-    print(f'min_samples_leaf {leaf} | Средний recall: {mean_recall:.4f} ± {std_recall:.4f} | Средний f1: {mean_f1:.4f} ± {std_f1:.4f}')
-
-
-
+# print('='*20, '\ncheck depths with cross validation for random forest')
+# depths_rf_depth = [3,5,7,10,15, None]
+# for depth in depths_rf_depth:
+#     model = RandomForestClassifier(max_depth=depth, random_state=42)
+#     recall_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='recall')
+#     f1_scores = cross_val_score(model, X_train_final, y_train, cv = 5, scoring='f1')
+#
+#     mean_recall = recall_scores.mean()
+#     mean_f1 = f1_scores.mean()
+#
+#     std_recall = recall_scores.std()
+#     std_f1 = f1_scores.std()
+#
+#     print(f'Глубина {depth} | Средний recall: {mean_recall:.4f} ± {std_recall:.4f} | Средний f1: {mean_f1:.4f} ± {std_f1:.4f}' )
+#
+# print('-'*10, '\nmin samples_leaf')
+#
+# rf_leaf = [1,3,5,10,20]
+# for leaf in rf_leaf:
+#     model = RandomForestClassifier(min_samples_leaf=leaf, max_depth=None, random_state=42)
+#     recall_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='recall')
+#     f1_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='f1')
+#
+#     mean_recall = recall_scores.mean()
+#     mean_f1 = f1_scores.mean()
+#
+#     std_recall = recall_scores.std()
+#     std_f1 = f1_scores.std()
+#
+#     print(f'min_samples_leaf {leaf} | Средний recall: {mean_recall:.4f} ± {std_recall:.4f} | Средний f1: {mean_f1:.4f} ± {std_f1:.4f}')
+#
 
 
+print('\n','='*30, '\nGradient Boosting:')
+model_gb = GradientBoostingClassifier(random_state=42)
+model_gb.fit(X_train_final, y_train)
+pred_gb = model_gb.predict(X_test_final)
+pred_gb_train = model_gb.predict(X_train_final)
 
+accuracy_gb = accuracy_score(y_test, pred_gb)
+report_gb = classification_report(y_test, pred_gb)
+confm_gb = confusion_matrix(y_test, pred_gb)
+accuracy_gb_train = accuracy_score(y_train, pred_gb_train)
+recall_gb_train = recall_score(y_train, pred_gb_train)
 
+print(f'Classification_report(gradient boosting): \n{report_gb}'
+      f'\nConfusion Matrix: \n{confm_gb}'
+      f'\nAccuracy for test: \b{accuracy_gb}'
+      f'\nAccuracy for train (gradient boosting): {accuracy_gb_train:.4f}'
+      f'\nRecall for train (gradient boosting: {recall_gb_train:.4f}')
 
+gb_prob = model_gb.predict_proba(X_test_final)
+roc_auc_gb = roc_auc_score(y_test, gb_prob[:,1])
+print(f'ROC-AUC (gradient boosting): {roc_auc_gb:.4f}')
 
 
 
