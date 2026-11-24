@@ -4,6 +4,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score, roc_auc_score
 from sklearn.dummy import DummyClassifier
+from sklearn.ensemble import RandomForestClassifier
+
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 1000)
@@ -81,7 +83,7 @@ dummy_class_rep = classification_report(y_test, dummy_pred, zero_division=0)
 
 print(f'метрики Dummy-модели: \n{dummy_class_rep}')
 
-print('='*20)
+print('='*20, '\nразные глубины:')
 
 #проверим результаты модели при разных значений глубины (max_depth)
 depths = [1,2,3,5,7,10,None]
@@ -110,6 +112,7 @@ for depth in depths:
     print('-'*10)
 
 
+print('\ncross validation:')
 # Подбор оптимальной глубины дерева (max_depth) на обучающей выборке с помощью 5-фолдовой кросс-валидации.
 # Для каждой глубины считаем среднее значение (mean) и стабильность/разброс (std) метрик Recall и F1
 # по 5 разбиениям, чтобы выбрать баланс между умением находить уходящих клиентов и защитой от переобучения.
@@ -127,9 +130,9 @@ for depth in depths:
 
     print(f'Глубина {depth} | Средний recall: {mean_score_r:.4f} ± {std_score_r:.4f} | Средний f1: {mean_score_f1:.4f} ± {std_scores_f1:.4f}' )
 
-
+print('\n','-'*20, '\nDecision tree(max_depth = 7)')
 model = DecisionTreeClassifier(max_depth=7, random_state=42)
-model = model.fit(X_train_final,y_train)
+model.fit(X_train_final,y_train)
 pred_test_d7 = model.predict(X_test_final)
 pred_prob = model.predict_proba(X_test_final)
 class_rep = classification_report(y_test, pred_test_d7)
@@ -139,6 +142,40 @@ print(f'Confusion matrix (max_depth = 7):\n{conf_matr}')
 
 roc_auc = roc_auc_score(y_test, pred_prob[:,1])
 print(f'ROC AUC: {roc_auc:.4f}')
+
+print('='*20, '\nRandom Forest:')
+
+#Random Forest
+modelrf = RandomForestClassifier(random_state=42)
+modelrf.fit(X_train_final, y_train)
+pred_rf = modelrf.predict(X_test_final)
+rf_prob = modelrf.predict_proba(X_test_final)
+rf_report = classification_report(y_test, pred_rf)
+rf_conf = confusion_matrix(y_test, pred_rf)
+print(f'Classification report:\n{rf_report}')
+print(f'Confusion matrix: \n{rf_conf}')
+
+rf_roc_auc = roc_auc_score(y_test, rf_prob[:,1])
+print(f'ROC AUC(random forest): {rf_roc_auc:.4f}')
+
+
+
+print('-'*10, '\nпроверяем, лес переобучается ли или нет(w train):')
+
+pred_rf_train = modelrf.predict(X_train_final)
+accuracy_for_train = accuracy_score(y_train, pred_rf_train)
+recall_for_train = recall_score(y_train, pred_rf_train)
+print(f'Accuracy for train: {accuracy_for_train}')
+print(f'Recall for train: {recall_for_train}')
+
+
+
+
+
+
+
+
+
 
 
 
