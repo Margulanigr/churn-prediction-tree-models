@@ -91,4 +91,4 @@ notebook/03_tuning.py is optional (slow)
 ```
 
 ## Next steps
-Decision threshold analysis, error analysis, SQL analysis
+error analysis, SQL analysis
