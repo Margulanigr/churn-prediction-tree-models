@@ -19,6 +19,8 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 - Churn rate among women is 25.1% vs 16.5% among men
 - Inactive clients have a churn rate of 26.9%, compared to a 14.3% for active clients
 - For number of products, the churn rate is 7.6% for 2 products, 27.7% for 1 product. For 3 products it's reaches 82.7% and for 4 it is 100%, but there are only 326 clients with 3 or 4 number of products, therefore, the conclusion is a cautious one
+- Age: churn grows sharply with age, from 7.5% (up to 30) and 12.1% (31-40) to 34.0% (41-50) and 56.2% (51-60), then drops to 24.8% for clients over 60 (464 clients).
+- Balance: clients with zero balance churn less (13.8% vs 24.1%). However, there are no zero-balance clients in Germany, which has the highest churn. Within France and Spain the gap is smaller (13.9% vs 18.2% and 13.6% vs 19.6%), so a large part of the overall gap is a country effect.
 
 ## Models and results
 
@@ -30,13 +32,34 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 | Random Forest (default parameters)     | 0.78 | 0.46 | 0.58 | 0.85 |
 | Gradient Boosting (default parameters) | 0.79 | 0.49 | 0.60 | 0.87 |
 
-- Random Forest hyperparameters were checked with 5-fold cross-validation on the training set (max_depth: 3-15 and None; min_samples_leaf: 1:20). No improvement beyond the cross_validation noise was found, so the default parameters were kept.
-- It has a higher ROC-AUC (0.85 vs 0.83), so it ranks clients by churn risk better.
-- Its F1-score is virtually the same as the depth-7 decision tree (0.58 vs 0.59).
-- The forest overfits the training data (accuracy and recall are 1.00 on train vs 0.86 and 0.46 on test), but its ROC_AUC on test is good (0.85), and limiting tree depth did not help.
-- Gradient Boosting shows no sign of overfitting with default parameters: accuracy is 0.87 on both train and test, recall is 0.50 on train vs 0.49 on test. It builds small trees one by one, each correcting the errors of the previous one.
+Decision Tree
+- The depth (7) was chosen with 5-fold cross-validation on the training set; the test set was used only once for the final check.
+- A tree without a depth limit overfits: accuracy is 1.00 on train vs 0.78 on test.
+
+Random Forest
+- max_depth (3-15 and None) and min_samples_leaf (1-20) were checked with 5-fold cross-validation on the training set. No improvement beyond the cross-validation noise was found, so the default parameters were kept.
+- The forest overfits the training data (accuracy and recall are 1.00 on train vs 0.86 and 0.46 on test), but its ROC-AUC on test is good (0.85), and limiting tree depth did not help.
+- ROC-AUC is higher than the depth-7 tree (0.85 vs 0.83), so it ranks clients by churn risk better. F1 is virtually the same (0.58 vs 0.59).
+
+Gradient Boosting
+- n_estimators (50-400) and max_depth (2-5) were checked with 5-fold cross-validation on the training set. No improvement beyond the noise was found, so the default parameters (100 trees, depth 3) were kept.
+- No sign of overfitting: accuracy is 0.87 on both train and test, recall is 0.50 on train vs 0.49 on test.
 - It has the highest ROC-AUC among the models (0.87).
-- Gradient Boosting parameters (n_estimators 50-400, max_depth 2-5) were checked with 5-fold cross_validation on the training set. No improvement beyond the cross-validation noise was found, so the default parameters (100 trees, depth 3) were kept.
+
+## Feature importance
+| Feature          | Importance |
+|------------------|------------|
+| age              | 0.388      |
+| products_number  | 0.300      |
+| active_member    | 0.114      |
+| balance          | 0.089      |
+| country_Germany  | 0.056      |
+
+- The top features match the EDA: number of products, activity and Germany all showed large churn differences. Age was not checked in the first EDA, and the follow-up analysis confirmed it (churn from 7.5% to 56.2% across age groups).
+- Salary, credit score, tenure and having a credit card have almost no importance.
+- Gender has low importance (0.013) despite the raw gap in churn (25.1% vs 16.5%): once the other features are known, it adds little information.
+- Balance is partly a country effect (see EDA), so its importance should not be read as a direct effect of balance.
+- Importance shows how much the model uses a feature, not the direction of the effect or its cause.
 
 ## How to run
 ```
@@ -45,4 +68,4 @@ Run notebook/01_explore.py, then notebook/02_prepare.py
 ```
 
 ## Next steps
-Feature importance, error analysis, SQL analysis
+Decision threshold analysis, error analysis, SQL analysis
