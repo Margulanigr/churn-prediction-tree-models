@@ -9,8 +9,12 @@ Predicting bank customer churn with Decision Tree, Random Forest and Gradient Bo
 
 ## Project Structure
 ```
-notebook/01_explore.py   - data exploration
-notebook/02_prepare.py   - preprocessing, models, evaluation
+notebook/data_prep.py     - data loading, train/test split, encoding
+notebook/01_explore.py    - data exploration
+notebook/02_models.py     - Dummy, Decision Tree, Random Forest, Gradient Boosting
+notebook/03_tuning.py     - cross-validation of hyperparameters (slow)
+notebook/04_analysis.py   - decision thresholds and feature importance
+
 ```
 
 ## Key findings from EDA
@@ -80,8 +84,10 @@ By default the model predicts churn when the probability is at least 0.5. Loweri
 
 ## How to run
 ```
-pip install pandas scikit-learn
-Run notebook/01_explore.py, then notebook/02_prepare.py
+pip install pandas numpy scikit-learn
+Run notebook/01_explore.py, then notebook/02_models.py and notebook/04_analysis.py
+notebook/03_tuning.py is optional (slow)
+
 ```
 
 ## Next steps
