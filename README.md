@@ -35,7 +35,8 @@ notebook/02_prepare.py   - preprocessing, models, evaluation
 - Its F1-score is virtually the same as the depth-7 decision tree (0.58 vs 0.59).
 - The forest overfits the training data (accuracy and recall are 1.00 on train vs 0.86 and 0.46 on test), but its ROC_AUC on test is good (0.85), and limiting tree depth did not help.
 - Gradient Boosting shows no sign of overfitting with default parameters: accuracy is 0.87 on both train and test, recall is 0.50 on train vs 0.49 on test. It builds small trees one by one, each correcting the errors of the previous one.
-- It has the highest ROC-AUC among the models (0.87)
+- It has the highest ROC-AUC among the models (0.87).
+- Gradient Boosting parameters (n_estimators 50-400, max_depth 2-5) were checked with 5-fold cross_validation on the training set. No improvement beyond the cross-validation noise was found, so the default parameters (100 trees, depth 3) were kept.
 
 ## How to run
 ```
