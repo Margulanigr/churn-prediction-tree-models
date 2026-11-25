@@ -2,7 +2,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score, roc_auc_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score, roc_auc_score, \
+    f1_score
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
@@ -224,4 +225,38 @@ roc_auc_gb = roc_auc_score(y_test, gb_prob[:,1])
 print(f'ROC-AUC (gradient boosting): {roc_auc_gb:.4f}')
 
 
+#Подобрем параметры бустинга кросс-валидаицей на train
+print('\n','='*30, '\ncross validation on boosting parameters for train ')
+n_estimators = [50, 100, 200, 400]
+for n in n_estimators:
+    model = GradientBoostingClassifier(n_estimators=n, random_state=42)
+    recall_scores = cross_val_score(model, X_train_final, y_train, cv = 5, scoring='recall')
+    f1_scores = cross_val_score(model, X_train_final, y_train, cv = 5, scoring = 'f1')
 
+    mean_score_r = recall_scores.mean()
+    mean_score_f1 = f1_scores.mean()
+
+    std_score_r = recall_scores.std()
+    std_scores_f1 = f1_scores.std()
+
+    print(f'n_estimators {n} | Средний recall: {mean_score_r:.4f} ± {std_score_r:.4f} | Средний f1: {mean_score_f1:.4f} ± {std_scores_f1:.4f}')
+
+depth_gb = [2,3,4,5]
+for depth in depth_gb:
+    model = GradientBoostingClassifier(max_depth=depth, random_state=42)
+    recall_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='recall')
+    f1_scores = cross_val_score(model, X_train_final, y_train, cv=5, scoring='f1')
+
+    mean_score_r = recall_scores.mean()
+    mean_score_f1 = f1_scores.mean()
+
+    std_score_r = recall_scores.std()
+    std_scores_f1 = f1_scores.std()
+
+    print(f'max_depth {depth} | Средний recall: {mean_score_r:.4f} ± {std_score_r:.4f} | Средний f1: {mean_score_f1:.4f} ± {std_scores_f1:.4f}')
+
+model_gb_param = GradientBoostingClassifier(max_depth=5, n_estimators=100, random_state=42)
+model_gb_param.fit(X_train_final, y_train)
+pred_gb_param = model_gb_param.predict(X_test_final)
+class_rep_param = classification_report(y_test, pred_gb_param)
+print(f'Classification report (max_depth = 5, n_estimators = 100): \n{class_rep_param}')
