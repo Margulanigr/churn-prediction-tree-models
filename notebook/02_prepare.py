@@ -3,7 +3,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score, roc_auc_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score, roc_auc_score, \
+    precision_score, f1_score
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
@@ -216,13 +217,25 @@ recall_gb_train = recall_score(y_train, pred_gb_train)
 
 print(f'Classification_report(gradient boosting): \n{report_gb}'
       f'\nConfusion Matrix: \n{confm_gb}'
-      f'\nAccuracy for test: \b{accuracy_gb}'
+      f'\nAccuracy for test: \n{accuracy_gb}'
       f'\nAccuracy for train (gradient boosting): {accuracy_gb_train:.4f}'
-      f'\nRecall for train (gradient boosting: {recall_gb_train:.4f}')
+      f'\nRecall for train (gradient boosting): {recall_gb_train:.4f}')
 
 gb_prob = model_gb.predict_proba(X_test_final)
 roc_auc_gb = roc_auc_score(y_test, gb_prob[:,1])
 print(f'ROC-AUC (gradient boosting): {roc_auc_gb:.4f}')
+
+print('\n--- Сравнение Precision и Recall по порогам (Gradient Boosting) ---')
+
+for threshold in [0.25, 0.3, 0.35, 0.4, 0.5]:
+    pred_t = (gb_prob[:, 1] >=threshold).astype(int)
+    rec_t = recall_score(y_test, pred_t)
+    prec_t = precision_score(y_test, pred_t)
+    f1_t = f1_score(y_test, pred_t)
+    confm_t = confusion_matrix(y_test, pred_t)
+    print(f'Threshold {threshold:.2f} | Precision: {prec_t:.4f} | Recall: {rec_t:.4f} | F1: {f1_t:.4f}')
+    print(f'Confusion matrix: \n{confm_t}\n')
+
 
 
 #Подобрем параметры бустинга кросс-валидаицей на train
