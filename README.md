@@ -61,6 +61,23 @@ Gradient Boosting
 - Balance is partly a country effect (see EDA), so its importance should not be read as a direct effect of balance.
 - Importance shows how much the model uses a feature, not the direction of the effect or its cause.
 
+## Decision threshold (Gradient Boosting)
+
+By default the model predicts churn when the probability is at least 0.5. Lowering the threshold finds more churners at the cost of more false alarms. Test set, 407 churners in total:
+
+| Threshold | Precision | Recall | F1   | Churners found | Missed | False alarms |
+|-----------|-----------|--------|------|----------------|--------|--------------|
+| 0.25      | 0.58      | 0.71   | 0.64 | 287            | 120    | 205          |
+| 0.30      | 0.63      | 0.65   | 0.64 | 266            | 141    | 153          |
+| 0.35      | 0.67      | 0.60   | 0.63 | 244            | 163    | 122          |
+| 0.40      | 0.71      | 0.55   | 0.62 | 225            | 182    | 91           |
+| 0.50      | 0.79      | 0.49   | 0.60 | 199            | 208    | 52           |
+
+- Lowering the threshold from 0.5 to 0.3 finds 67 more churners (266 vs 199) at the cost of 101 more false alarms (153 vs 52).
+- Going further, from 0.3 to 0.25, adds only 21 churners but 52 more false alarms, so the gain gets smaller.
+- The best threshold depends on the cost of a retention call vs. the cost of losing a client, which is not known from the data.
+- The thresholds were compared on the test set for illustration only, not to tune the model. ROC-AUC (0.87) does not depend on the threshold.
+
 ## How to run
 ```
 pip install pandas scikit-learn
