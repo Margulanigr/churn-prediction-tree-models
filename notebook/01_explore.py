@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 
@@ -73,7 +74,55 @@ print(f'Доля ушедших клиентов по числу продукт�
 
 print('='*20)
 
+stats_product_number =df.groupby('products_number')['churn'].agg(
+    number_of_clients= 'count',
+    churned_clients = 'sum',
+    churn_rate_percent = lambda x: (x.mean() *100)
+)
+print(stats_product_number)
+
+print('='*20)
+
 churn_by_active_member = df.groupby('active_member')['churn'].mean()*100
 print(f'Доля ушедших по активным участникам (%): {churn_by_active_member}')
 
+#проверка возраста
+print('='*30)
+bins = [0,30,40,50,60, np.inf]
+labels = ['до 30', '31-40', '41-50', '51-60', '60+']
 
+df['age_group'] = pd.cut(df['age'], bins = bins, labels = labels, include_lowest = True)
+
+churn_stats = df.groupby('age_group', observed = False)['churn'].agg(
+    total_clients='count',
+    churned = 'sum',
+    churn_rate_percent = lambda x: (x.mean()*100)
+).reset_index()
+
+print(churn_stats)
+
+#Проверка баланса (считаем оттоки для клиентов с нулевым балансом и с ненулевым)
+df['balance_type'] = np.where(df['balance']==0, 'Zero balance', 'Non-zero balance')
+balance = df.groupby('balance_type', as_index = False)['churn'].agg(
+    total_clients = 'count',
+    churned = 'sum',
+    churn_by_balance = lambda x: (x.mean()*100)
+)
+print(balance)
+
+print()
+print('='*30)
+
+zero_balance_country = pd.crosstab(index=df['country'], columns = df['balance']==0, normalize='index').round(4)*100
+zero_balance_country.columns = ['Non-zero balance (%)', 'Zero balance (%)']
+print(zero_balance_country)
+
+print()
+print('='*30)
+
+hold_eff = df.groupby(['country', 'balance_type'])['churn'].agg(
+    total_clients = 'count',
+    churn_by_balance = lambda x: (x.mean() * 100)
+
+)
+print(hold_eff)
