@@ -45,4 +45,4 @@ Run notebook/01_explore.py, then notebook/02_prepare.py
 ```
 
 ## Next steps
-Tune Gradient Boosting, feature importance, error analysis, SQL analysis
+Feature importance, error analysis, SQL analysis
