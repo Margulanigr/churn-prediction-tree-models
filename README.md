@@ -9,11 +9,15 @@ Predicting bank customer churn with Decision Tree, Random Forest and Gradient Bo
 
 ## Project Structure
 ```
+
 notebook/data_prep.py     - data loading, train/test split, encoding
 notebook/01_explore.py    - data exploration
 notebook/02_models.py     - Dummy, Decision Tree, Random Forest, Gradient Boosting
 notebook/03_tuning.py     - cross-validation of hyperparameters (slow)
 notebook/04_analysis.py   - decision thresholds and feature importance
+
+sql/create_table.sql     -creating a table
+sql/queries.sql     -sql analysis(exploration)
 
 ```
 
@@ -82,13 +86,42 @@ By default the model predicts churn when the probability is at least 0.5. Loweri
 - The best threshold depends on the cost of a retention call vs. the cost of losing a client, which is not known from the data.
 - The thresholds were compared on the test set for illustration only, not to tune the model. ROC-AUC (0.87) does not depend on the threshold.
 
+
+##SQL analysis (PostgreSQL)
+The main findings from EDA(01_explore.py) were reproduced with SQL queries in PostgreSql (pgAdmin)
+The results match pandas analysis
+
+Setup:
+1. Create the table with `sql/create_table.sql`.
+2. Load the CSV with pgAdmin (Import/Export Data, format csv, header on).
+3. Check the load: `SELECT COUNT(*), SUM(churn) FROM bank_churn;` should return 10,000 rows and 2,037 churned clients.
+4. Run the queries from `sql/queries.sql`.
+
+Queries:
+- Churn rate by country (`GROUP BY`, aggregates)
+- Churn rate by age group (`CASE WHEN`)
+- Churn rate by number of products (`HAVING` to drop very small groups)
+- Churn rate by country and zero/non-zero balance
+- Top 3 clients by balance in each country (window function `ROW_NUMBER`)
+- Churn rate of each country vs. the bank average (two CTEs)
+
+Churn rate of each country vs. the bank average (20.37%):
+
+| Country | Clients | Churn rate, % | Difference, pp |
+|---------|---------|---------------|----------------|
+| Germany | 2509    | 32.44         | +12.07         |
+| Spain   | 2477    | 16.67         | -3.70          |
+| France  | 5014    | 16.15         | -4.22          |
+
+
 ## How to run
 ```
 pip install pandas numpy scikit-learn
 Run notebook/01_explore.py, then notebook/02_models.py and notebook/04_analysis.py
 notebook/03_tuning.py is optional (slow)
+SQL part: see the "SQL analysis" section (PostgreSQL + pgAdmin)
 
 ```
 
 ## Next steps
-error analysis, SQL analysis
+error analysis
